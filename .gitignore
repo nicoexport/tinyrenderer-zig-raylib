@@ -7,3 +7,5 @@ zig-pkg/
 Project/*
 libraylib.a
 **/.DS_Store
+
+output.png
