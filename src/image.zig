@@ -1,4 +1,5 @@
 const rl = @import("raylib");
+const Color = @import("color.zig").Color;
 
 pub const RLImage = struct {
     image: rl.Image,
@@ -13,11 +14,20 @@ pub const RLImage = struct {
         self.image.unload();
     }
 
-    pub fn set_pixel(self: *RLImage, x: i32, y: i32) void {
-        self.image.drawPixel(x, y, rl.Color.red);
+    pub fn set_pixel(self: *RLImage, x: i32, y: i32, color: Color) void {
+        self.image.drawPixel(x, y, to_rl_color(color));
     }
 
     pub fn export_image(self: RLImage, filename: [:0]const u8) bool {
         return rl.exportImage(self.image, filename);
+    }
+
+    fn to_rl_color(color: Color) rl.Color {
+        return .{
+            .r = color.r,
+            .g = color.g,
+            .b = color.b,
+            .a = color.a,
+        };
     }
 };
