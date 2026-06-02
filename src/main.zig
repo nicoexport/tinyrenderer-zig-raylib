@@ -2,39 +2,27 @@
 
 const rl = @import("raylib");
 
-const Actor = struct {
-    position: rl.Vector2,
-    velocity: rl.Vector2,
+const RLImage = struct {
+    image: rl.Image,
+
+    pub fn init(width: i32, height: i32) RLImage {
+        return RLImage{
+            .image = rl.Image.genColor(width, height, rl.Color.black),
+        };
+    }
+
+    pub fn deinit(self: RLImage) void {
+        self.image.unload();
+    }
+
+    pub fn export_image(self: RLImage, filename: [:0]const u8) bool {
+        return rl.exportImage(self.image, filename);
+    }
 };
 
 pub fn main() anyerror!void {
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const screenWidth = 800;
-    const screenHeight = 450;
+    const img = RLImage.init(64, 64);
+    defer img.deinit();
 
-    rl.initWindow(screenWidth, screenHeight, "raylib-zig [core] example - basic window");
-    defer rl.closeWindow(); // Close window and OpenGL context
-
-    rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
-
-    // Main game loop
-    while (!rl.windowShouldClose()) { // Detect window close button or ESC key
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        rl.beginDrawing();
-        defer rl.endDrawing();
-
-        rl.clearBackground(.white);
-
-        rl.drawText("Congrats! You created your first window!", 190, 200, 20, .light_gray);
-        rl.drawCircle(0, 0, 50, .red);
-        //----------------------------------------------------------------------------------
-    }
+    _ = img.export_image("output.png");
 }
