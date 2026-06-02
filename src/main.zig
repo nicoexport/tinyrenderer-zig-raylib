@@ -2,7 +2,7 @@ const image = @import("image.zig");
 const Color = @import("color.zig").Color;
 
 pub fn main() anyerror!void {
-    var img = image.RLImage.init(64, 64);
+    var img = image.RLImage.init(64, 64, Color.black);
     defer img.deinit();
 
     const ax = 7;

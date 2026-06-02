@@ -4,9 +4,9 @@ const Color = @import("color.zig").Color;
 pub const RLImage = struct {
     image: rl.Image,
 
-    pub fn init(width: i32, height: i32) RLImage {
+    pub fn init(width: i32, height: i32, color: Color) RLImage {
         return RLImage{
-            .image = rl.Image.genColor(width, height, rl.Color.black),
+            .image = rl.Image.genColor(width, height, to_rl_color(color)),
         };
     }
 
