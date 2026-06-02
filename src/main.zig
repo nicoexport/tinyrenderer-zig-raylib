@@ -16,5 +16,9 @@ pub fn main() anyerror!void {
     img.set_pixel(bx, by, Color.green);
     img.set_pixel(cx, cy, Color.blue);
 
+    img.line(ax, ay, bx, by, Color.red);
+    img.line(cx, cy, ax, ay, Color.blue);
+    img.line(bx, by, cx, cy, Color.green);
+
     _ = img.export_image("output.png");
 }
