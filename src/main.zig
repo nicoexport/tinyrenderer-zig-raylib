@@ -1,8 +1,12 @@
+const rl = @import("raylib");
 const image = @import("image.zig");
 const Color = @import("color.zig").Color;
 
 pub fn main() anyerror!void {
-    var img = image.RLImage.init(64, 64, Color.black);
+    const width = 128;
+    const height = 128;
+
+    var img = image.RLImage.init(width, height, Color.black);
     defer img.deinit();
 
     const ax = 7;
@@ -21,4 +25,16 @@ pub fn main() anyerror!void {
     img.line(bx, by, cx, cy, Color.green);
 
     _ = img.export_image("output.png");
+
+    rl.initWindow(width, height, "tinyrenderer-zig-raylib");
+    defer rl.closeWindow();
+
+    while (!rl.windowShouldClose()) {
+        rl.beginDrawing();
+        defer rl.endDrawing();
+
+        rl.clearBackground(.white);
+
+        rl.drawText("Test", width / 2, height / 2, 20, .light_gray);
+    }
 }
