@@ -3,8 +3,8 @@ const image = @import("image.zig");
 const Color = @import("color.zig").Color;
 
 pub fn main() anyerror!void {
-    const width = 128;
-    const height = 128;
+    const width = 256;
+    const height = 256;
 
     var img = image.RLImage.init(width, height, Color.black);
     defer img.deinit();
@@ -29,12 +29,16 @@ pub fn main() anyerror!void {
     rl.initWindow(width, height, "tinyrenderer-zig-raylib");
     defer rl.closeWindow();
 
+    const texture = try rl.loadTextureFromImage(img.image);
+    defer rl.unloadTexture(texture);
+
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
         defer rl.endDrawing();
 
         rl.clearBackground(.white);
 
-        rl.drawText("Test", width / 2, height / 2, 20, .light_gray);
+        //rl.drawText("Test", width / 2, height / 2, 20, .light_gray);
+        rl.drawTexture(texture, 0, 0, .white);
     }
 }
