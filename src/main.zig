@@ -3,9 +3,10 @@ const rl = @import("raylib");
 const image = @import("image.zig");
 const Color = @import("color.zig").Color;
 const Model = @import("geometry.zig").Model;
+const Vec3 = @import("geometry.zig").Vec3;
 
 pub fn main(init: std.process.Init) anyerror!void {
-    var gpa = std.heap.DebugAllocator(.{}){};
+    var gpa = std.heap.DebugAllocator(.{}){}; // TODO: use another production ready allocator
     const alloc = gpa.allocator();
     const io = init.io;
 
@@ -27,6 +28,9 @@ pub fn main(init: std.process.Init) anyerror!void {
 
     var img = image.RLImage.init(width, height, Color.black);
     defer img.deinit();
+
+    const vertex = Vec3.init(0.1, -0.2, 0.3);
+    _ = project(vertex, width, height);
 
     const ax = 7;
     const ay = 3;
@@ -60,4 +64,13 @@ pub fn main(init: std.process.Init) anyerror!void {
         //rl.drawText("Test", width / 2, height / 2, 20, .light_gray);
         rl.drawTexture(texture, 0, 0, .white);
     }
+}
+
+fn project(v: Vec3, width: u32, height: u32) struct { i32, i32 } {
+    const w: f32 = @floatFromInt(width);
+    const h: f32 = @floatFromInt(height);
+    const f32x = (v.x + 1.0) * w / 2.0;
+    const f32y = (v.y + 1.0) * h / 2.0;
+
+    return .{ @intFromFloat(f32x), @intFromFloat(f32y) };
 }
