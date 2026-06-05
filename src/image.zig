@@ -1,6 +1,8 @@
 const std = @import("std");
 const rl = @import("raylib");
 const Color = @import("color.zig").Color;
+const Model = @import("geometry.zig").Model;
+const Vec3 = @import("geometry.zig").Vec3;
 
 pub const RLImage = struct {
     image: rl.Image,
@@ -66,6 +68,21 @@ pub const RLImage = struct {
         }
     }
 
+    pub fn draw_model_wire(self: *RLImage, model: *Model, color: Color) void {
+        const w: u32 = @intCast(self.image.width);
+        const h: u32 = @intCast(self.image.height);
+
+        for (model.faces.items) |f| {
+            const a = project_ndc_to_screen(model.vertices.items[f.a], w, h);
+            const b = project_ndc_to_screen(model.vertices.items[f.b], w, h);
+            const c = project_ndc_to_screen(model.vertices.items[f.c], w, h);
+
+            draw_line(self, a.@"0", a.@"1", b.@"0", b.@"1", color);
+            draw_line(self, b.@"0", b.@"1", c.@"0", c.@"1", color);
+            draw_line(self, c.@"0", c.@"1", a.@"0", a.@"1", color);
+        }
+    }
+
     pub fn export_image(self: RLImage, filename: [:0]const u8) bool {
         return rl.exportImage(self.image, filename);
     }
@@ -79,3 +96,12 @@ pub const RLImage = struct {
         };
     }
 };
+
+fn project_ndc_to_screen(v: Vec3, width: u32, height: u32) struct { i32, i32 } {
+    const w: f32 = @floatFromInt(width);
+    const h: f32 = @floatFromInt(height);
+    const f32x = (v.x + 1.0) * w / 2.0;
+    const f32y = (1.0 - v.y) * h / 2.0; // rl image has Top Left origin 0,0 thats why y coordinate is flipped here this way
+
+    return .{ @intFromFloat(f32x), @intFromFloat(f32y) };
+}
