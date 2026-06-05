@@ -15,11 +15,11 @@ pub const RLImage = struct {
         self.image.unload();
     }
 
-    pub fn set_pixel(self: *RLImage, x: i32, y: i32, color: Color) void {
+    pub fn draw_pixel(self: *RLImage, x: i32, y: i32, color: Color) void {
         self.image.drawPixel(x, y, to_rl_color(color));
     }
 
-    pub fn line(self: *RLImage, ax_in: i32, ay_in: i32, bx_in: i32, by_in: i32, color: Color) void {
+    pub fn draw_line(self: *RLImage, ax_in: i32, ay_in: i32, bx_in: i32, by_in: i32, color: Color) void {
         var ax = ax_in;
         var ay = ay_in;
         var bx = bx_in;
@@ -50,9 +50,9 @@ pub const RLImage = struct {
 
         while (x <= bx) : (x += 1) {
             if (steep) {
-                set_pixel(self, y, x, color);
+                draw_pixel(self, y, x, color);
             } else {
-                set_pixel(self, x, y, color);
+                draw_pixel(self, x, y, color);
             }
 
             err += 2 * dy_abs;

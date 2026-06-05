@@ -13,7 +13,7 @@ pub fn main(init: std.process.Init) anyerror!void {
     var model = Model.init();
     defer model.deinit(alloc);
 
-    try model.loadFromFile(alloc, io, "model.obj");
+    try model.loadFromFile(alloc, io, "resources/model.obj");
 
     const width = 768;
     const height = 768;
@@ -28,9 +28,9 @@ pub fn main(init: std.process.Init) anyerror!void {
         const b = project_ndc_screen(model.vertices.items[face.b], width, height);
         const c = project_ndc_screen(model.vertices.items[face.c], width, height);
 
-        img.line(a.@"0", a.@"1", b.@"0", b.@"1", Color.red);
-        img.line(b.@"0", b.@"1", c.@"0", c.@"1", Color.red);
-        img.line(c.@"0", c.@"1", a.@"0", a.@"1", Color.red);
+        img.draw_line(a.@"0", a.@"1", b.@"0", b.@"1", Color.red);
+        img.draw_line(b.@"0", b.@"1", c.@"0", c.@"1", Color.red);
+        img.draw_line(c.@"0", c.@"1", a.@"0", a.@"1", Color.red);
     }
 
     _ = img.export_image("output.png");
