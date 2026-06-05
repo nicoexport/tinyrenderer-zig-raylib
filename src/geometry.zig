@@ -116,6 +116,27 @@ pub const Model = struct {
         }
     }
 
+    pub fn get_vertex_from_face_index(self: *Model, face: usize, n: usize) Vec3 {
+        const f = self.faces.items[face];
+
+        const v_index: usize = 0;
+
+        switch (n) {
+            0 => {
+                v_index = f.a;
+            },
+            1 => {
+                v_index = f.b;
+            },
+            2 => {
+                v_index = f.c;
+            },
+            else => {},
+        }
+
+        return self.vertices.items[v_index];
+    }
+
     fn parseVertexIndex(token: []const u8) !usize {
         var it = std.mem.splitScalar(u8, token, '/');
         return try std.fmt.parseInt(usize, it.next().?, 10) - 1; // -1 since obj indices start at 1

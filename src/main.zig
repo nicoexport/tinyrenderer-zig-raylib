@@ -15,37 +15,21 @@ pub fn main(init: std.process.Init) anyerror!void {
 
     try model.loadFromFile(alloc, io, "model.obj");
 
-    for (model.vertices.items) |v| {
-        std.debug.print("v = ({}, {}, {})\n", .{ v.x, v.y, v.z });
-    }
-
-    for (model.faces.items) |f| {
-        std.debug.print("f = ({}, {}, {})\n", .{ f.a, f.b, f.c });
-    }
-
-    const width = 256;
-    const height = 256;
+    const width = 768;
+    const height = 768;
 
     var img = image.RLImage.init(width, height, Color.black);
     defer img.deinit();
 
-    const vertex = Vec3.init(0.1, -0.2, 0.3);
-    _ = project(vertex, width, height);
+    for (model.faces.items) |face| {
+        const a = project_ndc_screen(model.vertices.items[face.a], width, height);
+        const b = project_ndc_screen(model.vertices.items[face.b], width, height);
+        const c = project_ndc_screen(model.vertices.items[face.c], width, height);
 
-    const ax = 7;
-    const ay = 3;
-    const bx = 12;
-    const by = 37;
-    const cx = 62;
-    const cy = 53;
-
-    img.set_pixel(ax, ay, Color.red);
-    img.set_pixel(bx, by, Color.green);
-    img.set_pixel(cx, cy, Color.blue);
-
-    img.line(ax, ay, bx, by, Color.red);
-    img.line(cx, cy, ax, ay, Color.blue);
-    img.line(bx, by, cx, cy, Color.green);
+        img.line(a.@"0", a.@"1", b.@"0", b.@"1", Color.red);
+        img.line(b.@"0", b.@"1", c.@"0", c.@"1", Color.red);
+        img.line(c.@"0", c.@"1", a.@"0", a.@"1", Color.red);
+    }
 
     _ = img.export_image("output.png");
 
@@ -66,7 +50,7 @@ pub fn main(init: std.process.Init) anyerror!void {
     }
 }
 
-fn project(v: Vec3, width: u32, height: u32) struct { i32, i32 } {
+fn project_ndc_screen(v: Vec3, width: u32, height: u32) struct { i32, i32 } {
     const w: f32 = @floatFromInt(width);
     const h: f32 = @floatFromInt(height);
     const f32x = (v.x + 1.0) * w / 2.0;
