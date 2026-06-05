@@ -21,6 +21,8 @@ pub fn main(init: std.process.Init) anyerror!void {
     var img = image.RLImage.init(width, height, Color.black);
     defer img.deinit();
 
+    //img.image.drawCircle(0, 0, 40, .red);
+
     for (model.faces.items) |face| {
         const a = project_ndc_screen(model.vertices.items[face.a], width, height);
         const b = project_ndc_screen(model.vertices.items[face.b], width, height);
@@ -54,7 +56,7 @@ fn project_ndc_screen(v: Vec3, width: u32, height: u32) struct { i32, i32 } {
     const w: f32 = @floatFromInt(width);
     const h: f32 = @floatFromInt(height);
     const f32x = (v.x + 1.0) * w / 2.0;
-    const f32y = (v.y + 1.0) * h / 2.0;
+    const f32y = (1.0 - v.y) * h / 2.0; // rl image has Top Left origin 0,0 thats why y coordinate is flipped here this way
 
     return .{ @intFromFloat(f32x), @intFromFloat(f32y) };
 }
