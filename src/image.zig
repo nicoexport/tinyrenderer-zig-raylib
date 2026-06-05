@@ -74,6 +74,56 @@ pub const RLImage = struct {
         drawLine(self, cx, cy, ax, ay, color);
     }
 
+    pub fn drawTriangleScanLine(self: *RLImage, ax_in: i32, ay_in: i32, bx_in: i32, by_in: i32, cx_in: i32, cy_in: i32, color: Color) void {
+        var ax = ax_in;
+        var ay = ay_in;
+        var bx = bx_in;
+        var by = by_in;
+        var cx = cx_in;
+        var cy = cy_in;
+
+        if (ay > by) {
+            std.mem.swap(i32, &ay, &by);
+            std.mem.swap(i32, &ax, &bx);
+        }
+        if (ay > cy) {
+            std.mem.swap(i32, &ay, &cy);
+            std.mem.swap(i32, &ax, &cx);
+        }
+        if (by > cy) {
+            std.mem.swap(i32, &by, &cy);
+            std.mem.swap(i32, &bx, &cx);
+        }
+
+        const total_height = cy - ay;
+
+        if (ay != by) {
+            const segment_height = by - ay;
+            var y = ay;
+            while (y <= by) : (y += 1) {
+                const x1 = ax + @divTrunc(((cx - ax) * (y - ay)), total_height);
+                const x2 = ax + @divTrunc(((bx - ax) * (y - ay)), segment_height);
+                var x = @min(x1, x2);
+                while (x < @max(x1, x2)) : (x += 1) {
+                    drawPixel(self, x, y, color);
+                }
+            }
+        }
+
+        if (by != cy) {
+            const segment_height = cy - by;
+            var y = by;
+            while (y <= cy) : (y += 1) {
+                const x1 = ax + @divTrunc((cx - ax) * (y - ay), total_height);
+                const x2 = bx + @divTrunc((cx - bx) * (y - by), segment_height);
+                var x = @min(x1, x2);
+                while (x < @max(x1, x2)) : (x += 1) {
+                    drawPixel(self, x, y, color);
+                }
+            }
+        }
+    }
+
     pub fn drawModel(self: *RLImage, model: *Model, color: Color) void {
         const w: u32 = @intCast(self.image.width);
         const h: u32 = @intCast(self.image.height);

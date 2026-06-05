@@ -6,16 +6,23 @@ const Model = @import("geometry.zig").Model;
 
 pub fn main(init: std.process.Init) anyerror!void {
     var gpa = std.heap.DebugAllocator(.{}){}; // TODO: use another production ready allocator
-    var alloc = gpa.allocator();
-    var io = init.io;
+    const alloc = gpa.allocator();
+    const io = init.io;
 
-    const width = 768;
-    const height = 768;
+    _ = io;
+    _ = alloc;
+
+    const width = 256;
+    const height = 256;
 
     var img = image.RLImage.init(width, height, Color.black);
     defer img.deinit();
 
-    try loadAndDrawModel(&alloc, &io, &img);
+    // try loadAndDrawModel(&alloc, &io, &img);
+
+    img.drawTriangleScanLine(7, 45, 35, 100, 45, 60, .red);
+    img.drawTriangleScanLine(120, 35, 90, 5, 45, 110, .white);
+    img.drawTriangleScanLine(115, 83, 80, 90, 85, 20, .green);
 
     _ = img.exportImage("output.png");
 
