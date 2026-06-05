@@ -68,6 +68,12 @@ pub const RLImage = struct {
         }
     }
 
+    pub fn draw_triangle(self: *RLImage, ax: i32, ay: i32, bx: i32, by: i32, cx: i32, cy: i32, color: Color) void {
+        draw_line(self, ax, ay, bx, by, color);
+        draw_line(self, bx, by, cx, cy, color);
+        draw_line(self, cx, cy, ax, ay, color);
+    }
+
     pub fn draw_model_wire(self: *RLImage, model: *Model, color: Color) void {
         const w: u32 = @intCast(self.image.width);
         const h: u32 = @intCast(self.image.height);
@@ -77,9 +83,7 @@ pub const RLImage = struct {
             const b = project_ndc_to_screen(model.vertices.items[f.b], w, h);
             const c = project_ndc_to_screen(model.vertices.items[f.c], w, h);
 
-            draw_line(self, a.@"0", a.@"1", b.@"0", b.@"1", color);
-            draw_line(self, b.@"0", b.@"1", c.@"0", c.@"1", color);
-            draw_line(self, c.@"0", c.@"1", a.@"0", a.@"1", color);
+            draw_triangle(self, a.@"0", a.@"1", b.@"0", b.@"1", c.@"0", c.@"1", color);
         }
     }
 
