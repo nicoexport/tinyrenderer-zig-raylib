@@ -81,14 +81,14 @@ pub const Model = struct {
         };
     }
 
-    pub fn deinit(self: *Model, alloc: std.mem.Allocator) void {
-        self.vertices.deinit(alloc);
-        self.faces.deinit(alloc);
+    pub fn deinit(self: *Model, alloc: *std.mem.Allocator) void {
+        self.vertices.deinit(alloc.*);
+        self.faces.deinit(alloc.*);
     }
 
-    pub fn loadFromFile(self: *Model, alloc: std.mem.Allocator, io: std.Io, path: []const u8) !void {
+    pub fn loadFromFile(self: *Model, alloc: *std.mem.Allocator, io: *std.Io, path: []const u8) !void {
         var lines: LineReader = undefined;
-        try lines.init(io, path);
+        try lines.init(io.*, path);
         defer lines.deinit();
 
         while (try lines.next()) |line| {
@@ -100,7 +100,7 @@ pub const Model = struct {
                 const y = try std.fmt.parseFloat(f32, it.next().?);
                 const z = try std.fmt.parseFloat(f32, it.next().?);
 
-                try self.vertices.append(alloc, .{ .x = x, .y = y, .z = z });
+                try self.vertices.append(alloc.*, .{ .x = x, .y = y, .z = z });
             } else if (std.mem.startsWith(u8, line, "f ")) {
                 var it = std.mem.tokenizeScalar(u8, line, ' ');
                 _ = it.next(); // skip "f"
@@ -111,7 +111,7 @@ pub const Model = struct {
                 const b = try parseVertexIndex(it.next().?);
                 const c = try parseVertexIndex(it.next().?);
 
-                try self.faces.append(alloc, .{ .a = a, .b = b, .c = c });
+                try self.faces.append(alloc.*, .{ .a = a, .b = b, .c = c });
             }
         }
     }

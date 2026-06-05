@@ -9,7 +9,7 @@ pub const RLImage = struct {
 
     pub fn init(width: i32, height: i32, color: Color) RLImage {
         return RLImage{
-            .image = rl.Image.genColor(width, height, to_rl_color(color)),
+            .image = rl.Image.genColor(width, height, toRlColor(color)),
         };
     }
 
@@ -17,11 +17,11 @@ pub const RLImage = struct {
         self.image.unload();
     }
 
-    pub fn draw_pixel(self: *RLImage, x: i32, y: i32, color: Color) void {
-        self.image.drawPixel(x, y, to_rl_color(color));
+    pub fn drawPixel(self: *RLImage, x: i32, y: i32, color: Color) void {
+        self.image.drawPixel(x, y, toRlColor(color));
     }
 
-    pub fn draw_line(self: *RLImage, ax_in: i32, ay_in: i32, bx_in: i32, by_in: i32, color: Color) void {
+    pub fn drawLine(self: *RLImage, ax_in: i32, ay_in: i32, bx_in: i32, by_in: i32, color: Color) void {
         var ax = ax_in;
         var ay = ay_in;
         var bx = bx_in;
@@ -52,9 +52,9 @@ pub const RLImage = struct {
 
         while (x <= bx) : (x += 1) {
             if (steep) {
-                draw_pixel(self, y, x, color);
+                drawPixel(self, y, x, color);
             } else {
-                draw_pixel(self, x, y, color);
+                drawPixel(self, x, y, color);
             }
 
             err += 2 * dy_abs;
@@ -68,30 +68,30 @@ pub const RLImage = struct {
         }
     }
 
-    pub fn draw_triangle(self: *RLImage, ax: i32, ay: i32, bx: i32, by: i32, cx: i32, cy: i32, color: Color) void {
-        draw_line(self, ax, ay, bx, by, color);
-        draw_line(self, bx, by, cx, cy, color);
-        draw_line(self, cx, cy, ax, ay, color);
+    pub fn drawTriangle(self: *RLImage, ax: i32, ay: i32, bx: i32, by: i32, cx: i32, cy: i32, color: Color) void {
+        drawLine(self, ax, ay, bx, by, color);
+        drawLine(self, bx, by, cx, cy, color);
+        drawLine(self, cx, cy, ax, ay, color);
     }
 
-    pub fn draw_model_wire(self: *RLImage, model: *Model, color: Color) void {
+    pub fn drawModel(self: *RLImage, model: *Model, color: Color) void {
         const w: u32 = @intCast(self.image.width);
         const h: u32 = @intCast(self.image.height);
 
         for (model.faces.items) |f| {
-            const a = project_ndc_to_screen(model.vertices.items[f.a], w, h);
-            const b = project_ndc_to_screen(model.vertices.items[f.b], w, h);
-            const c = project_ndc_to_screen(model.vertices.items[f.c], w, h);
+            const a = projectNdcToScreen(model.vertices.items[f.a], w, h);
+            const b = projectNdcToScreen(model.vertices.items[f.b], w, h);
+            const c = projectNdcToScreen(model.vertices.items[f.c], w, h);
 
-            draw_triangle(self, a.@"0", a.@"1", b.@"0", b.@"1", c.@"0", c.@"1", color);
+            drawTriangle(self, a.@"0", a.@"1", b.@"0", b.@"1", c.@"0", c.@"1", color);
         }
     }
 
-    pub fn export_image(self: RLImage, filename: [:0]const u8) bool {
+    pub fn exportImage(self: RLImage, filename: [:0]const u8) bool {
         return rl.exportImage(self.image, filename);
     }
 
-    fn to_rl_color(color: Color) rl.Color {
+    fn toRlColor(color: Color) rl.Color {
         return .{
             .r = color.r,
             .g = color.g,
@@ -101,7 +101,7 @@ pub const RLImage = struct {
     }
 };
 
-fn project_ndc_to_screen(v: Vec3, width: u32, height: u32) struct { i32, i32 } {
+fn projectNdcToScreen(v: Vec3, width: u32, height: u32) struct { i32, i32 } {
     const w: f32 = @floatFromInt(width);
     const h: f32 = @floatFromInt(height);
     const f32x = (v.x + 1.0) * w / 2.0;
