@@ -70,6 +70,22 @@ pub const Face = struct {
     c: usize,
 };
 
+pub const AABB = struct {
+    x_min: i32,
+    x_max: i32,
+    y_min: i32,
+    y_max: i32,
+
+    pub fn init(x_min: i32, x_max: i32, y_min: i32, y_max: i32) AABB {
+        return .{
+            .x_min = x_min,
+            .x_max = x_max,
+            .y_min = y_min,
+            .y_max = y_max,
+        };
+    }
+};
+
 pub const Model = struct {
     vertices: std.ArrayList(Vec3),
     faces: std.ArrayList(Face),

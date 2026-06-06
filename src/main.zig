@@ -20,9 +20,9 @@ pub fn main(init: std.process.Init) anyerror!void {
 
     // try loadAndDrawModel(&alloc, &io, &img);
 
-    img.drawTriangleScanLine(7, 45, 35, 100, 45, 60, .red);
-    img.drawTriangleScanLine(120, 35, 90, 5, 45, 110, .white);
-    img.drawTriangleScanLine(115, 83, 80, 90, 85, 20, .green);
+    img.drawTriangle(7, 45, 35, 100, 45, 60, .red);
+    img.drawTriangle(120, 35, 90, 5, 45, 110, .white);
+    img.drawTriangle(115, 83, 80, 90, 85, 20, .green);
 
     _ = img.exportImage("output.png");
 

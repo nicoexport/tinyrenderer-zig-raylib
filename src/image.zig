@@ -3,6 +3,7 @@ const rl = @import("raylib");
 const Color = @import("color.zig").Color;
 const Model = @import("geometry.zig").Model;
 const Vec3 = @import("geometry.zig").Vec3;
+const AABB = @import("geometry.zig").AABB;
 
 pub const RLImage = struct {
     image: rl.Image,
@@ -68,10 +69,48 @@ pub const RLImage = struct {
         }
     }
 
-    pub fn drawTriangle(self: *RLImage, ax: i32, ay: i32, bx: i32, by: i32, cx: i32, cy: i32, color: Color) void {
+    pub fn drawTriangleWire(self: *RLImage, ax: i32, ay: i32, bx: i32, by: i32, cx: i32, cy: i32, color: Color) void {
         drawLine(self, ax, ay, bx, by, color);
         drawLine(self, bx, by, cx, cy, color);
         drawLine(self, cx, cy, ax, ay, color);
+    }
+
+    pub fn drawTriangleAABB(self: *RLImage, ax_in: i32, ay_in: i32, bx_in: i32, by_in: i32, cx_in: i32, cy_in: i32, color: Color) void {
+        const min_x = @min(ax_in, bx_in, cx_in);
+        const max_x = @max(ax_in, bx_in, cx_in);
+        const min_y = @min(ay_in, by_in, cy_in);
+        const max_y = @max(ay_in, by_in, cy_in);
+
+        var x = min_x;
+        while (x <= max_x) : (x += 1) {
+            var y = min_y;
+            while (y <= max_y) : (y += 1) {
+                drawPixel(self, x, y, color);
+            }
+        }
+    }
+
+    pub fn drawTriangle(self: *RLImage, ax_in: i32, ay_in: i32, bx_in: i32, by_in: i32, cx_in: i32, cy_in: i32, color: Color) void {
+        const min_x = @min(ax_in, bx_in, cx_in);
+        const max_x = @max(ax_in, bx_in, cx_in);
+        const min_y = @min(ay_in, by_in, cy_in);
+        const max_y = @max(ay_in, by_in, cy_in);
+
+        const total_area = signedTriangleArea(ax_in, ay_in, bx_in, by_in, cx_in, cy_in);
+
+        var x = min_x;
+        while (x <= max_x) : (x += 1) {
+            var y = min_y;
+            while (y <= max_y) : (y += 1) {
+                const alpha = signedTriangleArea(x, y, bx_in, by_in, cx_in, cy_in) / total_area;
+                const beta = signedTriangleArea(x, y, cx_in, cy_in, ax_in, ay_in) / total_area;
+                const gamma = signedTriangleArea(x, y, ax_in, ay_in, bx_in, by_in) / total_area;
+                if (alpha < 0 or beta < 0 or gamma < 0) {
+                    continue;
+                }
+                drawPixel(self, x, y, color);
+            }
+        }
     }
 
     pub fn drawTriangleScanLine(self: *RLImage, ax_in: i32, ay_in: i32, bx_in: i32, by_in: i32, cx_in: i32, cy_in: i32, color: Color) void {
@@ -133,7 +172,7 @@ pub const RLImage = struct {
             const b = projectNdcToScreen(model.vertices.items[f.b], w, h);
             const c = projectNdcToScreen(model.vertices.items[f.c], w, h);
 
-            drawTriangle(self, a.@"0", a.@"1", b.@"0", b.@"1", c.@"0", c.@"1", color);
+            drawTriangleWire(self, a.@"0", a.@"1", b.@"0", b.@"1", c.@"0", c.@"1", color);
         }
     }
 
@@ -151,11 +190,17 @@ pub const RLImage = struct {
     }
 };
 
-fn projectNdcToScreen(v: Vec3, width: u32, height: u32) struct { i32, i32 } {
+pub fn projectNdcToScreen(v: Vec3, width: u32, height: u32) struct { i32, i32 } {
     const w: f32 = @floatFromInt(width);
     const h: f32 = @floatFromInt(height);
     const f32x = (v.x + 1.0) * w / 2.0;
     const f32y = (1.0 - v.y) * h / 2.0; // rl image has Top Left origin 0,0 thats why y coordinate is flipped here this way
 
     return .{ @intFromFloat(f32x), @intFromFloat(f32y) };
+}
+
+pub fn signedTriangleArea(ax: i32, ay: i32, bx: i32, by: i32, cx: i32, cy: i32) f32 {
+    const rect_area = (by - ay) * (bx + ax) + (cy - by) * (cx + bx) + (ay - cy) * (ax + cx);
+    const rect_area_f: f32 = @floatFromInt(rect_area);
+    return 0.5 * rect_area_f;
 }
