@@ -18,6 +18,11 @@ pub const RLImage = struct {
         self.image.unload();
     }
 
+    pub fn get(self: *RLImage, x: i32, y: i32) Color {
+        const col = self.image.getColor(x, y);
+        return rlToColor(col);
+    }
+
     pub fn drawPixel(self: *RLImage, x: i32, y: i32, color: Color) void {
         self.image.drawPixel(x, y, toRlColor(color));
     }
@@ -97,6 +102,10 @@ pub const RLImage = struct {
         const max_y = @max(ay_in, by_in, cy_in);
 
         const total_area = signedTriangleArea(ax_in, ay_in, bx_in, by_in, cx_in, cy_in);
+
+        if (total_area < 1) {
+            return;
+        }
 
         var x = min_x;
         while (x <= max_x) : (x += 1) {
@@ -204,6 +213,15 @@ pub const RLImage = struct {
     }
 
     fn toRlColor(color: Color) rl.Color {
+        return .{
+            .r = color.r,
+            .g = color.g,
+            .b = color.b,
+            .a = color.a,
+        };
+    }
+
+    fn rlToColor(color: rl.Color) Color {
         return .{
             .r = color.r,
             .g = color.g,
