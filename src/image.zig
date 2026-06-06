@@ -163,7 +163,7 @@ pub const RLImage = struct {
         }
     }
 
-    pub fn drawModel(self: *RLImage, model: *Model, color: Color) void {
+    pub fn drawModelWire(self: *RLImage, model: *Model, color: Color) void {
         const w: u32 = @intCast(self.image.width);
         const h: u32 = @intCast(self.image.height);
 
@@ -173,6 +173,29 @@ pub const RLImage = struct {
             const c = projectNdcToScreen(model.vertices.items[f.c], w, h);
 
             drawTriangleWire(self, a.@"0", a.@"1", b.@"0", b.@"1", c.@"0", c.@"1", color);
+        }
+    }
+
+    pub fn drawModelRandomColors(self: *RLImage, model: *Model, color: Color) void {
+        _ = color;
+        const w: u32 = @intCast(self.image.width);
+        const h: u32 = @intCast(self.image.height);
+
+        var prng: std.Random.DefaultPrng = .init(0);
+        const rand = prng.random();
+
+        for (model.faces.items) |f| {
+            const a = projectNdcToScreen(model.vertices.items[f.a], w, h);
+            const b = projectNdcToScreen(model.vertices.items[f.b], w, h);
+            const c = projectNdcToScreen(model.vertices.items[f.c], w, h);
+            const col: Color = .{
+                .r = rand.intRangeAtMost(u8, 0, 255),
+                .g = rand.intRangeAtMost(u8, 0, 255),
+                .b = rand.intRangeAtMost(u8, 0, 255),
+                .a = 255,
+            };
+
+            drawTriangle(self, a.@"0", a.@"1", b.@"0", b.@"1", c.@"0", c.@"1", col);
         }
     }
 
