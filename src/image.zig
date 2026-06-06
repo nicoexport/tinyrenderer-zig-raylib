@@ -3,7 +3,6 @@ const rl = @import("raylib");
 const Color = @import("color.zig").Color;
 const Model = @import("geometry.zig").Model;
 const Vec3 = @import("geometry.zig").Vec3;
-const AABB = @import("geometry.zig").AABB;
 
 pub const RLImage = struct {
     image: rl.Image,
