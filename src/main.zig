@@ -1,6 +1,7 @@
 const std = @import("std");
 const rl = @import("raylib");
 const image = @import("image.zig");
+const renderer = @import("renderer.zig");
 const Color = @import("color.zig").Color;
 const Model = @import("geometry.zig").Model;
 
@@ -15,22 +16,29 @@ pub fn main(init: std.process.Init) anyerror!void {
     const width = 512;
     const height = 512;
 
-    var img = image.RLImage.init(width, height, Color.black);
-    defer img.deinit();
+    var frame_buffer = image.RLImage.init(width, height, Color.black);
+    defer frame_buffer.deinit();
 
-    try loadAndDrawModel(&alloc, &io, &img);
+    var z_buffer = image.RLImage.init(width, height, Color.black);
+    defer z_buffer.deinit();
 
-    // img.drawTriangle(7, 45, 35, 100, 45, 60, .red);
-    // img.drawTriangle(120, 35, 90, 5, 45, 110, .white);
-    // img.drawTriangle(115, 83, 80, 90, 85, 20, .green);
-    _ = img.get(32, 32);
-    _ = img.exportImage("output.png");
+    var model = Model.init();
+    defer model.deinit(&alloc);
+    try model.loadFromFile(&alloc, &io, "resources/model.obj");
 
-    rl.initWindow(width, height, "tinyrenderer-zig-raylib");
+    renderer.drawModel(&model, &frame_buffer, &z_buffer);
+
+    _ = frame_buffer.exportImage("output.png");
+    _ = z_buffer.exportImage("output_z.png");
+
+    rl.initWindow(width * 2, height, "tinyrenderer-zig-raylib");
     defer rl.closeWindow();
 
-    const texture = try rl.loadTextureFromImage(img.image);
-    defer rl.unloadTexture(texture);
+    const texture_frame = try rl.loadTextureFromImage(frame_buffer.image);
+    defer rl.unloadTexture(texture_frame);
+
+    const texture_z = try rl.loadTextureFromImage(z_buffer.image);
+    defer rl.unloadTexture(texture_z);
 
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
@@ -39,7 +47,8 @@ pub fn main(init: std.process.Init) anyerror!void {
         rl.clearBackground(.white);
 
         //rl.drawText("Test", width / 2, height / 2, 20, .light_gray);
-        rl.drawTexture(texture, 0, 0, .white);
+        rl.drawTexture(texture_frame, 0, 0, .white);
+        rl.drawTexture(texture_z, width, 0, .white);
     }
 }
 

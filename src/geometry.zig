@@ -1,6 +1,28 @@
 const std = @import("std");
 const LineReader = @import("filehandling.zig").LineReader;
 
+pub const Vec3i32 = struct {
+    x: i32,
+    y: i32,
+    z: i32,
+
+    pub fn init(x: i32, y: i32, z: i32) Vec3i32 {
+        return .{
+            .x = x,
+            .y = y,
+            .z = z,
+        };
+    }
+
+    pub fn fromVec3(v: Vec3) Vec3i32 {
+        return .{
+            .x = @intFromFloat(v.x),
+            .y = @intFromFloat(v.y),
+            .z = @intFromFloat(v.z),
+        };
+    }
+};
+
 pub const Vec3 = struct {
     x: f32,
     y: f32,
