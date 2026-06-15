@@ -28,6 +28,10 @@ pub fn main(init: std.process.Init) anyerror!void {
 
     renderer.drawModel(&model, &frame_buffer, &z_buffer);
 
+    const cwd = std.Io.Dir.cwd();
+
+    try cwd.createDirPath(io, "output");
+
     _ = frame_buffer.exportImage("output/output.png");
     _ = z_buffer.exportImage("output/output_z.png");
 
