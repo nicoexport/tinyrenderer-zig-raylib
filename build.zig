@@ -67,8 +67,6 @@ pub fn build(b: *std.Build) !void {
 
     const test_exe = b.addTest(.{ .name = "unit_tests", .root_module = exe_mod });
 
-    test_exe.setVerboseCC(true);
-
     b.installArtifact(test_exe);
 
     const run_arti = b.addRunArtifact(test_exe);
