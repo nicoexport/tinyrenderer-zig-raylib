@@ -64,4 +64,14 @@ pub fn build(b: *std.Build) !void {
 
         run_step.dependOn(&run_cmd.step);
     }
+
+    const test_exe = b.addTest(.{ .name = "unit_tests", .root_module = exe_mod });
+
+    test_exe.setVerboseCC(true);
+
+    b.installArtifact(test_exe);
+
+    const run_arti = b.addRunArtifact(test_exe);
+    const run_test = b.step("test", "Run unit tests");
+    run_test.dependOn(&run_arti.step);
 }

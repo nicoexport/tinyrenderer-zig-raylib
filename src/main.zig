@@ -5,6 +5,8 @@ const renderer = @import("renderer.zig");
 const Color = @import("color.zig").Color;
 const Model = @import("geometry.zig").Model;
 
+const core = @import("core/main.zig");
+
 pub fn main(init: std.process.Init) anyerror!void {
     var gpa = std.heap.DebugAllocator(.{}){}; // TODO: use another production ready allocator
     var alloc = gpa.allocator();
@@ -63,4 +65,8 @@ fn loadAndDrawModel(alloc: *std.mem.Allocator, io: *std.Io, img: *image.RLImage)
     try model.loadFromFile(alloc, io, "resources/model.obj");
 
     img.drawModelRandomColors(&model, Color.white);
+}
+
+test {
+    _ = core;
 }

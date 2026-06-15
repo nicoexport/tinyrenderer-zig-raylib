@@ -1,3 +1,5 @@
+const std = @import("std");
+
 pub const Color = struct {
     r: u8,
     g: u8,
@@ -27,4 +29,13 @@ pub fn unpack(p: u32) Color {
         .g = @intCast((p >> 8) & 0xFF),
         .b = @intCast(p & 0xFF),
     };
+}
+
+// --- TESTS ---
+test "color pack" {
+    const expected: u32 = 0xFFFFFFFF;
+    const in: Color = .{ .r = 255, .g = 255, .b = 255, .a = 255 };
+    const res: u32 = pack(in);
+
+    try std.testing.expectEqual(expected, res);
 }
