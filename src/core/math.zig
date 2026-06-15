@@ -61,12 +61,12 @@ pub const Vec3 = struct {
     }
 };
 
-pub const Vec3i32 = struct {
+pub const Vec3int = struct {
     x: i32,
     y: i32,
     z: i32,
 
-    pub fn init(x: i32, y: i32, z: i32) Vec3i32 {
+    pub fn init(x: i32, y: i32, z: i32) Vec3int {
         return .{
             .x = x,
             .y = y,
@@ -74,7 +74,7 @@ pub const Vec3i32 = struct {
         };
     }
 
-    pub fn fromVec3(v: Vec3) Vec3i32 {
+    pub fn fromVec3(v: Vec3) Vec3int {
         return .{
             .x = @intFromFloat(v.x),
             .y = @intFromFloat(v.y),
