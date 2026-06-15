@@ -3,9 +3,11 @@ zig-cache/
 zig-out/
 zig-pkg/
 
+
 .idea/
 Project/*
 libraylib.a
 **/.DS_Store
 
+output/
 output.png
