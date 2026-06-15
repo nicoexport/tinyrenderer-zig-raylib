@@ -24,12 +24,12 @@ pub fn main(init: std.process.Init) anyerror!void {
 
     var model = Model.init();
     defer model.deinit(&alloc);
-    try model.loadFromFile(&alloc, &io, "resources/model.obj");
+    try model.loadFromFile(&alloc, &io, "resources/african_head.obj");
 
     renderer.drawModel(&model, &frame_buffer, &z_buffer);
 
-    _ = frame_buffer.exportImage("output.png");
-    _ = z_buffer.exportImage("output_z.png");
+    _ = frame_buffer.exportImage("output/output.png");
+    _ = z_buffer.exportImage("output/output_z.png");
 
     rl.initWindow(width * 2, height, "tinyrenderer-zig-raylib");
     defer rl.closeWindow();

@@ -34,9 +34,9 @@ pub fn drawTriangle(a: Vec3i32, b: Vec3i32, c: Vec3i32, frame_buf: *RLImage, z_b
 
     const total_area = signedTriangleArea(a.x, a.y, b.x, b.y, c.x, c.y);
 
-    if (total_area < 1) {
-        return;
-    }
+    // if (total_area < 1) {
+    //     return;
+    // }
 
     var x = minx;
     while (x <= maxx) : (x += 1) {
