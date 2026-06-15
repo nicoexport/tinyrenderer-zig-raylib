@@ -31,11 +31,16 @@ pub fn unpack(p: u32) Color {
     };
 }
 
-// --- TESTS ---
 test "color pack" {
     const expected: u32 = 0xFFFFFFFF;
     const in: Color = .{ .r = 255, .g = 255, .b = 255, .a = 255 };
     const res: u32 = pack(in);
+    try std.testing.expectEqual(expected, res);
+}
 
+test "color unpack" {
+    const expected: Color = .{ .r = 255, .g = 255, .b = 255, .a = 255 };
+    const in: u32 = 0xFFFFFFFF;
+    const res: Color = unpack(in);
     try std.testing.expectEqual(expected, res);
 }
