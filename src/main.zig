@@ -67,6 +67,7 @@ pub fn main(init: std.process.Init) anyerror!void {
             rl.drawText("depth", 0, 0, 12, .red);
         } else {
             rl.drawTexture(texture_color, 0, 0, .white);
+            rl.drawText("color", 0, 0, 12, .red);
         }
     }
 }
