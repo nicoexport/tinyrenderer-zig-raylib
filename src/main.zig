@@ -45,15 +45,29 @@ pub fn main(init: std.process.Init) anyerror!void {
     const texture_color = try rl.loadTextureFromImage(img);
     const texture_depth = try rl.loadTextureFromImage(img);
 
+    var draw_depth: bool = false;
+
     while (!rl.windowShouldClose()) {
         // update texture
         rl.updateTexture(texture_color, framebuffer.colorData().ptr);
         rl.updateTexture(texture_depth, depth_visualization.ptr);
+
+        // handle input
+        if (rl.isKeyPressed(.f1)) {
+            draw_depth = !draw_depth;
+        }
+
         // draw
         rl.beginDrawing();
         defer rl.endDrawing();
         rl.clearBackground(.black);
-        rl.drawTexture(texture_depth, 0, 0, .white);
+
+        if (draw_depth) {
+            rl.drawTexture(texture_depth, 0, 0, .white);
+            rl.drawText("depth", 0, 0, 12, .red);
+        } else {
+            rl.drawTexture(texture_color, 0, 0, .white);
+        }
     }
 }
 
