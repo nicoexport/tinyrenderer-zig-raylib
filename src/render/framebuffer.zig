@@ -61,7 +61,11 @@ pub const Framebuffer = struct {
         return y * self.width + x;
     }
 
-    pub fn colorData(self: *Framebuffer) []const u32 {
+    pub fn colorData(self: *const Framebuffer) []const u32 {
         return self.color_buffer;
+    }
+
+    pub fn depthData(self: *const Framebuffer) []const f32 {
+        return self.depth_buffer;
     }
 };

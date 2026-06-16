@@ -89,18 +89,32 @@ fn runRefactored(init: std.process.Init) anyerror!void {
 
     drawMesh(&mesh, &framebuffer);
 
+    const depth_visualization = try alloc.alloc(u32, width * height);
+    defer alloc.free(depth_visualization);
+
+    depthToGreyscale(framebuffer.depthData(), depth_visualization);
+
     rl.initWindow(@as(i32, width), @as(i32, height), "Refactor");
     defer rl.closeWindow();
 
     const img = rl.Image.genColor(@as(i32, width), @as(i32, height), .blue);
     defer img.unload();
 
-    var texture = try rl.loadTextureFromImage(img);
+    const texture_color = try rl.loadTextureFromImage(img);
+    const texture_depth = try rl.loadTextureFromImage(img);
 
     while (!rl.windowShouldClose()) {
-        present(&framebuffer, &texture);
+        // update texture
+        rl.updateTexture(texture_color, framebuffer.colorData().ptr);
+        rl.updateTexture(texture_depth, depth_visualization.ptr);
+        // draw
+        rl.beginDrawing();
+        defer rl.endDrawing();
+        rl.clearBackground(.black);
+        rl.drawTexture(texture_depth, 0, 0, .white);
     }
 }
+
 // TODO: move to renderer. also move the texture as state to renderer
 fn drawMesh(mesh: *Mesh, framebuffer: *Framebuffer) void {
     var prng: std.Random.DefaultPrng = .init(0);
@@ -130,12 +144,23 @@ fn drawMesh(mesh: *Mesh, framebuffer: *Framebuffer) void {
 
 fn present(fb: *Framebuffer, texture: *rl.Texture2D) void {
     // update texture
-    rl.updateTexture(texture.*, fb.color_buffer.ptr);
+    rl.updateTexture(texture.*, fb.colorData().ptr);
     // draw
     rl.beginDrawing();
     defer rl.endDrawing();
     rl.clearBackground(.black);
     rl.drawTexture(texture.*, 0, 0, .white);
+}
+
+fn depthToGreyscale(depth: []const f32, out: []u32) void {
+    std.debug.assert(depth.len == out.len);
+
+    for (depth, out) |z, *pixel| {
+        const v: u8 = @intFromFloat(std.math.clamp(z, 0.0, 1.0) * 255.0);
+        const col = core.color.rgb(v, v, v);
+
+        pixel.* = core.color.pack(col);
+    }
 }
 
 test {
