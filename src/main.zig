@@ -1,7 +1,7 @@
 const std = @import("std");
 const rl = @import("raylib");
 const rasterizer = @import("render/rasterizer.zig");
-const core = @import("core/main.zig");
+const core = @import("core/mod.zig");
 const obj_loader = @import("core/obj_loader.zig");
 
 const Mesh = @import("core/mesh.zig").Mesh;

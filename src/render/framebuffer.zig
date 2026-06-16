@@ -1,5 +1,5 @@
 const std = @import("std");
-const core = @import("../core/main.zig");
+const core = @import("../core/mod.zig");
 const color_mod = core.color;
 
 pub const Framebuffer = struct {
