@@ -8,25 +8,35 @@ pub const IndexTriangle = struct {
 };
 
 pub const Mesh = struct {
+    allocator: std.mem.Allocator,
     vertices: std.ArrayList(Vec3),
     faces: std.ArrayList(IndexTriangle),
 
-    pub fn init() Mesh {
+    pub fn init(allocator: std.mem.Allocator) Mesh {
         return .{
+            .allocator = allocator,
             .vertices = .empty,
             .faces = .empty,
         };
     }
 
-    pub fn deinit(self: *Mesh, alloc: *std.mem.Allocator) void {
-        self.vertices.deinit(alloc.*);
-        self.faces.deinit(alloc.*);
+    pub fn deinit(self: *Mesh) void {
+        self.vertices.deinit(self.allocator);
+        self.faces.deinit(self.allocator);
     }
 
-    pub fn get_vertex_from_face_index(self: *Mesh, face: usize, n: usize) Vec3 {
-        const f = self.faces.items[face];
+    pub fn addVertex(self: *Mesh, vertex: Vec3) !void {
+        try self.vertices.append(self.allocator, vertex);
+    }
 
-        const v_index: usize = 0;
+    pub fn addFace(self: *Mesh, face: IndexTriangle) !void {
+        try self.faces.append(self.allocator, face);
+    }
+
+    pub fn getVertexFromFaceIndex(self: *Mesh, face_index: usize, n: usize) Vec3 {
+        const f = self.faces.items[face_index];
+
+        var v_index: usize = 0;
 
         switch (n) {
             0 => {

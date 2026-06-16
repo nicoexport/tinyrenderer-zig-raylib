@@ -1,7 +1,7 @@
 const std = @import("std");
 const Mesh = @import("mesh.zig").Mesh;
 
-pub fn loadMeshFromFile(mesh: *Mesh, alloc: *std.mem.Allocator, io: *std.Io, path: []const u8) !void {
+pub fn loadMeshFromFile(mesh: *Mesh, io: *std.Io, path: []const u8) !void {
     var lines: LineReader = undefined;
     try lines.init(io.*, path);
     defer lines.deinit();
@@ -15,7 +15,8 @@ pub fn loadMeshFromFile(mesh: *Mesh, alloc: *std.mem.Allocator, io: *std.Io, pat
             const y = try std.fmt.parseFloat(f32, it.next().?);
             const z = try std.fmt.parseFloat(f32, it.next().?);
 
-            try mesh.vertices.append(alloc.*, .{ .x = x, .y = y, .z = z });
+            try mesh.addVertex(.{ .x = x, .y = y, .z = z });
+            //
         } else if (std.mem.startsWith(u8, line, "f ")) {
             var it = std.mem.tokenizeScalar(u8, line, ' ');
             _ = it.next(); // skip "f"
@@ -26,7 +27,7 @@ pub fn loadMeshFromFile(mesh: *Mesh, alloc: *std.mem.Allocator, io: *std.Io, pat
             const b = try parseVertexIndex(it.next().?);
             const c = try parseVertexIndex(it.next().?);
 
-            try mesh.faces.append(alloc.*, .{ .a = a, .b = b, .c = c });
+            try mesh.addFace(.{ .a = a, .b = b, .c = c });
         }
     }
 }

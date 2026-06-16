@@ -89,15 +89,18 @@ pub fn drawTriangle(framebuffer: *Framebuffer, v0: ScreenVertex, v1: ScreenVerte
                 .y = @floatFromInt(y),
             };
 
-            const alpha = signedTriangleArea(p, v1.pos, v2.pos) / total_area;
-            const beta = signedTriangleArea(p, v2.pos, v0.pos) / total_area;
-            const gamma = signedTriangleArea(p, v0.pos, v1.pos) / total_area;
+            const alpha = signedTriangleArea(p, v1.position, v2.position) / total_area;
+            const beta = signedTriangleArea(p, v2.position, v0.position) / total_area;
+            const gamma = signedTriangleArea(p, v0.position, v1.position) / total_area;
             if (alpha < 0 or beta < 0 or gamma < 0) {
                 continue;
             }
 
-            const z: f32 = alpha * v0.position + beta * v1.position + gamma * v2.position;
-            framebuffer.writePixelDepth(@as(usize, x), @as(usize, y), z, color);
+            const z: f32 = alpha * v0.z + beta * v1.z + gamma * v2.z;
+            const xu: usize = @intCast(x);
+            const yu: usize = @intCast(y);
+
+            framebuffer.writePixelDepth(xu, yu, z, color);
         }
     }
 }
@@ -113,7 +116,7 @@ pub fn ndcToScreen(v: Vec3, width: u32, height: u32) ScreenVertex {
     const h: f32 = @floatFromInt(height);
 
     return .{
-        .pos = .{
+        .position = .{
             .x = (v.x + 1.0) * w * 0.5,
             .y = (1.0 - v.y) * h * 0.5,
         },

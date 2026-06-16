@@ -5,9 +5,12 @@ const renderer = @import("renderer.zig");
 const rasterizer = @import("render/rasterizer.zig");
 const Color = @import("color.zig").Color;
 const Model = @import("geometry.zig").Model;
+const Mesh = @import("core/mesh.zig").Mesh;
 const Framebuffer = @import("render/framebuffer.zig").Framebuffer;
+const ScreenVertex = @import("render/types.zig").ScreenVertex;
 const Vec2i = @import("core/math.zig").Vec2i;
 const core = @import("core/main.zig");
+const obj_loader = @import("core/obj_loader.zig");
 
 pub fn main(init: std.process.Init) anyerror!void {
     try runRefactored(init);
@@ -66,9 +69,9 @@ pub fn runOld(init: std.process.Init) anyerror!void {
 fn runRefactored(init: std.process.Init) anyerror!void {
     var gpa = std.heap.DebugAllocator(.{}){}; // TODO: use another production ready allocator
     const alloc = gpa.allocator();
-    const io = init.io;
+    var io = init.io;
 
-    _ = io;
+    //_ = io;
     // _ = alloc;
 
     const width: usize = 512;
@@ -77,11 +80,14 @@ fn runRefactored(init: std.process.Init) anyerror!void {
     var framebuffer: Framebuffer = try Framebuffer.init(alloc, width, height);
     defer framebuffer.deinit();
 
-    const col = core.color.rgb(255, 255, 255);
-    const a = Vec2i{ .x = 20, .y = 40 };
-    const b = Vec2i{ .x = 70, .y = 100 };
-    const c = Vec2i{ .x = 150, .y = 160 };
-    rasterizer.drawTriangleWire(&framebuffer, a, b, c, col);
+    framebuffer.clearColor(core.color.rgb(0, 0, 0));
+
+    var mesh = Mesh.init(alloc);
+    defer mesh.deinit();
+
+    try obj_loader.loadMeshFromFile(&mesh, &io, "resources/model.obj");
+
+    drawMesh(&mesh, &framebuffer);
 
     rl.initWindow(@as(i32, width), @as(i32, height), "Refactor");
     defer rl.closeWindow();
@@ -93,6 +99,32 @@ fn runRefactored(init: std.process.Init) anyerror!void {
 
     while (!rl.windowShouldClose()) {
         present(&framebuffer, &texture);
+    }
+}
+// TODO: move to renderer. also move the texture as state to renderer
+fn drawMesh(mesh: *Mesh, framebuffer: *Framebuffer) void {
+    var prng: std.Random.DefaultPrng = .init(0);
+    const rand = prng.random();
+
+    const w: u32 = @intCast(framebuffer.width);
+    const h: u32 = @intCast(framebuffer.height);
+
+    for (mesh.faces.items, 0..) |f, fi| {
+        _ = f;
+        const r = rand.intRangeAtMost(u8, 0, 255);
+        const g = rand.intRangeAtMost(u8, 0, 255);
+        const b = rand.intRangeAtMost(u8, 0, 255);
+        const col = core.color.rgb(r, g, b);
+
+        const v0 = mesh.getVertexFromFaceIndex(fi, 0);
+        const v1 = mesh.getVertexFromFaceIndex(fi, 1);
+        const v2 = mesh.getVertexFromFaceIndex(fi, 2);
+
+        const v_screen_0 = rasterizer.ndcToScreen(v0, w, h);
+        const v_screen_1 = rasterizer.ndcToScreen(v1, w, h);
+        const v_screen_2 = rasterizer.ndcToScreen(v2, w, h);
+
+        rasterizer.drawTriangle(framebuffer, v_screen_0, v_screen_1, v_screen_2, col);
     }
 }
 
