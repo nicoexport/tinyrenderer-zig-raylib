@@ -2,7 +2,7 @@ const std = @import("std");
 const core = @import("../core/main.zig");
 const color_mod = core.color;
 
-const Framebuffer = struct {
+pub const Framebuffer = struct {
     allocator: std.mem.Allocator,
     width: usize,
     height: usize,
@@ -45,14 +45,14 @@ const Framebuffer = struct {
     // TODO: error handling for attempting to write out of bounds
     pub fn writePixel(self: *Framebuffer, x: usize, y: usize, color: color_mod.Color) void {
         const i = index(self, x, y);
-        self.color_buffer[i] = color;
+        self.color_buffer[i] = color_mod.pack(color);
     }
 
     // TODO: error handling for attempting to write out of bounds
     pub fn writePixelDepth(self: *Framebuffer, x: usize, y: usize, z: f32, color: color_mod.Color) void {
         const i = index(self, x, y);
         if (z < self.depth_buffer[i]) return;
-        self.color_buffer[i] = color;
+        self.color_buffer[i] = color_mod.pack(color);
         self.depth_buffer[i] = z;
     }
 
