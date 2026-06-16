@@ -9,6 +9,7 @@ const Vec2 = math.Vec2;
 const Vec2i = math.Vec2i;
 const Framebuffer = @import("framebuffer.zig").Framebuffer;
 const ScreenVertex = @import("types.zig").ScreenVertex;
+const ScreenBoundingBox = @import("types.zig").ScreenBoundingBox;
 
 // TODO: Refactor this and pull out funtions, especially for the drawTriangle.
 // pub fn drawTriangle(...)
@@ -73,17 +74,14 @@ pub fn drawTriangleWire(framebuffer: *Framebuffer, a: Vec2i, b: Vec2i, c: Vec2i,
 }
 
 pub fn drawTriangle(framebuffer: *Framebuffer, v0: ScreenVertex, v1: ScreenVertex, v2: ScreenVertex, color: color_mod.Color) void {
-    const minx: i32 = @intFromFloat(@min(v0.position.x, v1.position.x, v2.position.x));
-    const maxx: i32 = @intFromFloat(@max(v0.position.x, v1.position.x, v2.position.x));
-    const miny: i32 = @intFromFloat(@min(v0.position.y, v1.position.y, v2.position.y));
-    const maxy: i32 = @intFromFloat(@max(v0.position.y, v1.position.y, v2.position.y));
+    const bb = ScreenBoundingBoxForTriangle(v0, v1, v2);
 
     const total_area = signedTriangleArea(v0.position, v1.position, v2.position);
 
-    var x: i32 = minx;
-    while (x <= maxx) : (x += 1) {
-        var y: i32 = miny;
-        while (y <= maxy) : (y += 1) {
+    var x: i32 = bb.min_x;
+    while (x <= bb.max_x) : (x += 1) {
+        var y: i32 = bb.min_y;
+        while (y <= bb.max_y) : (y += 1) {
             const p = Vec2{
                 .x = @floatFromInt(x),
                 .y = @floatFromInt(y),
@@ -103,6 +101,15 @@ pub fn drawTriangle(framebuffer: *Framebuffer, v0: ScreenVertex, v1: ScreenVerte
             framebuffer.writePixelDepth(xu, yu, z, color);
         }
     }
+}
+
+pub fn ScreenBoundingBoxForTriangle(v0: ScreenVertex, v1: ScreenVertex, v2: ScreenVertex) ScreenBoundingBox {
+    const minx: i32 = @intFromFloat(@min(v0.position.x, v1.position.x, v2.position.x));
+    const maxx: i32 = @intFromFloat(@max(v0.position.x, v1.position.x, v2.position.x));
+    const miny: i32 = @intFromFloat(@min(v0.position.y, v1.position.y, v2.position.y));
+    const maxy: i32 = @intFromFloat(@max(v0.position.y, v1.position.y, v2.position.y));
+
+    return .{ .min_x = minx, .max_x = maxx, .min_y = miny, .max_y = maxy };
 }
 
 pub fn signedTriangleArea(a: Vec2, b: Vec2, c: Vec2) f32 {
