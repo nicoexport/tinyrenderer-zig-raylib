@@ -1,11 +1,13 @@
 const std = @import("std");
 const rl = @import("raylib");
 const core = @import("core/mod.zig");
-const obj_loader = @import("core/obj_loader.zig");
-const renderer = @import("render/renderer.zig");
+const render = @import("render/mod.zig");
+
+const obj_loader = core.obj_loader;
+const renderer = render.renderer;
 
 const Mesh = core.mesh.Mesh;
-const Framebuffer = @import("render/framebuffer.zig").Framebuffer;
+const Framebuffer = render.framebuffer.Framebuffer;
 
 pub fn main(init: std.process.Init) anyerror!void {
     var gpa = std.heap.DebugAllocator(.{}){}; // TODO: use another production ready allocator
