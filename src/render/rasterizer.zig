@@ -1,6 +1,6 @@
 const std = @import("std");
 const core = @import("../core/mod.zig");
-
+const render = @import("mod.zig");
 const color_mod = core.color;
 const math = core.math;
 
@@ -8,8 +8,8 @@ const Vec3 = math.Vec3;
 const Vec2 = math.Vec2;
 const Vec2i = math.Vec2i;
 const Framebuffer = @import("framebuffer.zig").Framebuffer;
-const ScreenVertex = @import("types.zig").ScreenVertex;
-const ScreenBoundingBox = @import("types.zig").ScreenBoundingBox;
+const ScreenVertex = render.ScreenVertex;
+const ScreenBoundingBox = render.ScreenBoundingBox;
 
 // TODO: Refactor this and pull out funtions, especially for the drawTriangle.
 // pub fn drawTriangle(...)

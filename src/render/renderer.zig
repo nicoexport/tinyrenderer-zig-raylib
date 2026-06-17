@@ -1,11 +1,12 @@
 const std = @import("std");
 const core = @import("../core/mod.zig");
 const rasterizer = @import("rasterizer.zig");
-
+const render = @import("mod.zig");
 const Vec3 = core.math.Vec3;
 const Mesh = core.mesh.Mesh;
+
 const Framebuffer = @import("framebuffer.zig").Framebuffer;
-const ScreenVertex = @import("types.zig").ScreenVertex;
+const ScreenVertex = render.ScreenVertex;
 
 pub fn drawMesh(mesh: *Mesh, framebuffer: *Framebuffer) void {
     var prng: std.Random.DefaultPrng = .init(0);
