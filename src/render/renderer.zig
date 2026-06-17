@@ -30,9 +30,9 @@ pub fn drawMesh(mesh: *Mesh, framebuffer: *Framebuffer) void {
         const v1 = mesh.getVertexFromFaceIndex(fi, 1);
         const v2 = mesh.getVertexFromFaceIndex(fi, 2);
 
-        const v_screen_0 = ndcToScreen(math.Vec3Transform(rotationMatrix, v0), w, h);
-        const v_screen_1 = ndcToScreen(math.Vec3Transform(rotationMatrix, v1), w, h);
-        const v_screen_2 = ndcToScreen(math.Vec3Transform(rotationMatrix, v2), w, h);
+        const v_screen_0 = ndcToScreen(persp(math.Vec3Transform(rotationMatrix, v0)), w, h);
+        const v_screen_1 = ndcToScreen(persp(math.Vec3Transform(rotationMatrix, v1)), w, h);
+        const v_screen_2 = ndcToScreen(persp(math.Vec3Transform(rotationMatrix, v2)), w, h);
 
         rasterizer.drawTriangle(framebuffer, v_screen_0, v_screen_1, v_screen_2, col);
     }
@@ -51,8 +51,8 @@ fn ndcToScreen(v: Vec3, width: u32, height: u32) ScreenVertex {
     };
 }
 
-fn rotate(v: Vec3) void {
-    _ = v;
-    const a = std.math.pi / 6.0;
-    std.debug.print("res: {d}\n", .{a});
+fn persp(v: Vec3) Vec3 {
+    const c = 3.0;
+    const factor = 1.0 / (1.0 - v.z / c);
+    return v.scale(factor);
 }

@@ -95,10 +95,8 @@ pub fn drawTriangle(framebuffer: *Framebuffer, v0: ScreenVertex, v1: ScreenVerte
             }
 
             const z: f32 = alpha * v0.z + beta * v1.z + gamma * v2.z;
-            const xu: usize = @intCast(x);
-            const yu: usize = @intCast(y);
 
-            framebuffer.writePixelDepth(xu, yu, z, color);
+            framebuffer.writePixelDepth(x, y, z, color);
         }
     }
 }

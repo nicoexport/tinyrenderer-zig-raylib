@@ -43,13 +43,19 @@ pub const Framebuffer = struct {
     }
 
     // TODO: error handling for attempting to write out of bounds
-    pub fn writePixel(self: *Framebuffer, x: usize, y: usize, color: color_mod.Color) void {
+    pub fn writePixel(self: *Framebuffer, x: i32, y: i32, color: color_mod.Color) void {
+        if (x < 0 or x >= self.width or y < 0 or y >= self.height) {
+            return;
+        }
         const i = index(self, x, y);
         self.color_buffer[i] = color_mod.pack(color);
     }
 
     // TODO: error handling for attempting to write out of bounds
-    pub fn writePixelDepth(self: *Framebuffer, x: usize, y: usize, z: f32, color: color_mod.Color) void {
+    pub fn writePixelDepth(self: *Framebuffer, x: i32, y: i32, z: f32, color: color_mod.Color) void {
+        if (x < 0 or x >= self.width or y < 0 or y >= self.height) {
+            return;
+        }
         const i = index(self, x, y);
         if (z < self.depth_buffer[i]) return;
         self.color_buffer[i] = color_mod.pack(color);
@@ -57,8 +63,10 @@ pub const Framebuffer = struct {
     }
 
     // TODO: error handling for attempting to write out of bounds
-    fn index(self: *Framebuffer, x: usize, y: usize) usize {
-        return y * self.width + x;
+    fn index(self: *Framebuffer, x: i32, y: i32) usize {
+        const xu: usize = @intCast(x);
+        const yu: usize = @intCast(y);
+        return yu * self.width + xu;
     }
 
     pub fn colorData(self: *const Framebuffer) []const u32 {
