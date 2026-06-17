@@ -1,6 +1,5 @@
 # TODO
-- setup render module files and adjust imports
-
+- BOUNDS checking when drawing into framebuffer
 
 # Planned Project Structure
 
