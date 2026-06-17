@@ -12,8 +12,7 @@ const Framebuffer = @import("framebuffer.zig").Framebuffer;
 const ScreenVertex = render.ScreenVertex;
 
 pub fn drawMesh(mesh: *Mesh, framebuffer: *Framebuffer) void {
-    const rotationMatrix = Mat4.rotationY(math.degToRad(30.0));
-
+    const rotationMatrix = Mat4.rotateY(math.degToRad(30.0));
     var prng: std.Random.DefaultPrng = .init(0);
     const rand = prng.random();
 
@@ -31,9 +30,9 @@ pub fn drawMesh(mesh: *Mesh, framebuffer: *Framebuffer) void {
         const v1 = mesh.getVertexFromFaceIndex(fi, 1);
         const v2 = mesh.getVertexFromFaceIndex(fi, 2);
 
-        const v_screen_0 = ndcToScreen(math.transformVec3(rotationMatrix, v0), w, h);
-        const v_screen_1 = ndcToScreen(math.transformVec3(rotationMatrix, v1), w, h);
-        const v_screen_2 = ndcToScreen(math.transformVec3(rotationMatrix, v2), w, h);
+        const v_screen_0 = ndcToScreen(math.Vec3Transform(rotationMatrix, v0), w, h);
+        const v_screen_1 = ndcToScreen(math.Vec3Transform(rotationMatrix, v1), w, h);
+        const v_screen_2 = ndcToScreen(math.Vec3Transform(rotationMatrix, v2), w, h);
 
         rasterizer.drawTriangle(framebuffer, v_screen_0, v_screen_1, v_screen_2, col);
     }
