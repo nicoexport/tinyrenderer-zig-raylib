@@ -29,7 +29,7 @@ pub fn main(init: std.process.Init) anyerror!void {
     var mesh = Mesh.init(alloc);
     defer mesh.deinit();
 
-    try obj_loader.loadMeshFromFile(&mesh, &io, "resources/model.obj");
+    try obj_loader.loadMeshFromFile(&mesh, &io, "resources/african_head.obj");
 
     renderer.drawMesh(&mesh, &framebuffer);
 

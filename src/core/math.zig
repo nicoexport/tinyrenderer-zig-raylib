@@ -1,3 +1,5 @@
+const std = @import("std");
+
 pub const Vec3 = struct {
     x: f32,
     y: f32,
@@ -178,4 +180,8 @@ pub fn transformVec3(m: Mat4, v: Vec3) Vec3 {
     const z = m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[2][3];
 
     return .{ .x = x, .y = y, .z = z };
+}
+
+pub fn degToRad(deg: f32) f32 {
+    return deg * std.math.pi / 180.0;
 }

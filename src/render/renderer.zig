@@ -2,13 +2,18 @@ const std = @import("std");
 const core = @import("../core/mod.zig");
 const rasterizer = @import("rasterizer.zig");
 const render = @import("mod.zig");
-const Vec3 = core.math.Vec3;
+const math = core.math;
+
+const Vec3 = math.Vec3;
+const Mat4 = math.Mat4;
 const Mesh = core.mesh.Mesh;
 
 const Framebuffer = @import("framebuffer.zig").Framebuffer;
 const ScreenVertex = render.ScreenVertex;
 
 pub fn drawMesh(mesh: *Mesh, framebuffer: *Framebuffer) void {
+    const rotationMatrix = Mat4.rotationY(math.degToRad(30.0));
+
     var prng: std.Random.DefaultPrng = .init(0);
     const rand = prng.random();
 
@@ -26,15 +31,15 @@ pub fn drawMesh(mesh: *Mesh, framebuffer: *Framebuffer) void {
         const v1 = mesh.getVertexFromFaceIndex(fi, 1);
         const v2 = mesh.getVertexFromFaceIndex(fi, 2);
 
-        const v_screen_0 = ndcToScreen(v0, w, h);
-        const v_screen_1 = ndcToScreen(v1, w, h);
-        const v_screen_2 = ndcToScreen(v2, w, h);
+        const v_screen_0 = ndcToScreen(math.transformVec3(rotationMatrix, v0), w, h);
+        const v_screen_1 = ndcToScreen(math.transformVec3(rotationMatrix, v1), w, h);
+        const v_screen_2 = ndcToScreen(math.transformVec3(rotationMatrix, v2), w, h);
 
         rasterizer.drawTriangle(framebuffer, v_screen_0, v_screen_1, v_screen_2, col);
     }
 }
 
-pub fn ndcToScreen(v: Vec3, width: u32, height: u32) ScreenVertex {
+fn ndcToScreen(v: Vec3, width: u32, height: u32) ScreenVertex {
     const w: f32 = @floatFromInt(width);
     const h: f32 = @floatFromInt(height);
 
@@ -45,4 +50,10 @@ pub fn ndcToScreen(v: Vec3, width: u32, height: u32) ScreenVertex {
         },
         .z = (v.z + 1.0) * 0.5, // normalized depth
     };
+}
+
+fn rotate(v: Vec3) void {
+    _ = v;
+    const a = std.math.pi / 6.0;
+    std.debug.print("res: {d}\n", .{a});
 }
