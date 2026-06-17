@@ -68,4 +68,15 @@ pub const Framebuffer = struct {
     pub fn depthData(self: *const Framebuffer) []const f32 {
         return self.depth_buffer;
     }
+
+    pub fn getDepthDataGreyscale(self: *Framebuffer, out: []u32) void {
+        std.debug.assert(self.depth_buffer.len == out.len);
+
+        for (self.depth_buffer, out) |z, *pixel| {
+            const v: u8 = @intFromFloat(std.math.clamp(z, 0.0, 1.0) * 255.0);
+            const col = core.color.rgb(v, v, v);
+
+            pixel.* = core.color.pack(col);
+        }
+    }
 };

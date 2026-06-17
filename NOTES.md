@@ -1,4 +1,10 @@
+# TODO
+- setup render module files and adjust imports
+
+
 # Planned Project Structure
+
+
 
 src/
   main.zig

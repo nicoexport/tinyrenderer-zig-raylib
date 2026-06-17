@@ -116,17 +116,3 @@ pub fn signedTriangleArea(a: Vec2, b: Vec2, c: Vec2) f32 {
     const rect_area = (b.y - a.y) * (b.x + a.x) + (c.y - b.y) * (c.x + b.x) + (a.y - c.y) * (a.x + c.x);
     return 0.5 * rect_area;
 }
-
-// TODO: move this to renderer
-pub fn ndcToScreen(v: Vec3, width: u32, height: u32) ScreenVertex {
-    const w: f32 = @floatFromInt(width);
-    const h: f32 = @floatFromInt(height);
-
-    return .{
-        .position = .{
-            .x = (v.x + 1.0) * w * 0.5,
-            .y = (1.0 - v.y) * h * 0.5,
-        },
-        .z = (v.z + 1.0) * 0.5, // normalized depth
-    };
-}
