@@ -49,7 +49,7 @@ pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
     const h: i32 = @intCast(framebuffer.height);
 
     const m_model_view = lookAt(cam.eye, cam.center, cam.up);
-    const m_perspective = perspective(2);
+    const m_perspective = perspective(cam.eye.subtract(cam.center).length());
     const m_viewport = viewport(@divTrunc(w, 16), @divTrunc(h, 16), @divTrunc(w * 7, 8), @divTrunc(h * 7, 8));
 
     for (mesh.faces.items, 0..) |f, fi| {
