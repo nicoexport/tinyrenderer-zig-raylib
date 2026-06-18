@@ -3,7 +3,33 @@ const rl = @import("raylib");
 
 pub const Vec3 = rl.Vector3;
 pub const Vec4 = rl.Vector4;
+
 pub const Mat4 = rl.Matrix;
+pub fn mat4(
+    r0: [4]f32,
+    r1: [4]f32,
+    r2: [4]f32,
+    r3: [4]f32,
+) Mat4 {
+    return .{
+        .m0 = r0[0],
+        .m4 = r0[1],
+        .m8 = r0[2],
+        .m12 = r0[3],
+        .m1 = r1[0],
+        .m5 = r1[1],
+        .m9 = r1[2],
+        .m13 = r1[3],
+        .m2 = r2[0],
+        .m6 = r2[1],
+        .m10 = r2[2],
+        .m14 = r2[3],
+        .m3 = r3[0],
+        .m7 = r3[1],
+        .m11 = r3[2],
+        .m15 = r3[3],
+    };
+}
 
 pub const Vec3i = struct {
     x: i32,

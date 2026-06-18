@@ -86,4 +86,5 @@ fn present(fb: *Framebuffer, texture: *rl.Texture2D) void {
 
 test {
     _ = core;
+    _ = render;
 }
