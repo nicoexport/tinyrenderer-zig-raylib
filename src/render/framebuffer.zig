@@ -38,8 +38,8 @@ pub const Framebuffer = struct {
         @memset(self.color_buffer, color_packed);
     }
 
-    pub fn clearDepth(self: *Framebuffer, depth: f32) void {
-        @memset(self.depth_buffer, depth);
+    pub fn clearDepth(self: *Framebuffer) void {
+        @memset(self.depth_buffer, -std.math.inf(f32));
     }
 
     // TODO: error handling for attempting to write out of bounds

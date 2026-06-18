@@ -7,6 +7,7 @@ const obj_loader = core.obj_loader;
 const renderer = render.renderer;
 
 const Mesh = core.mesh.Mesh;
+const Vec3 = core.math.Vec3;
 const Framebuffer = render.framebuffer.Framebuffer;
 
 pub fn main(init: std.process.Init) anyerror!void {
@@ -20,18 +21,24 @@ pub fn main(init: std.process.Init) anyerror!void {
     const width: usize = 512;
     const height: usize = 512;
 
+    const eye = Vec3.init(-1, 0, 2);
+    const center = Vec3.zero();
+    const up = Vec3.init(0, 1, 0);
+    var cam = renderer.Camera.init(eye, center, up);
+
     var framebuffer: Framebuffer = try Framebuffer.init(alloc, width, height);
 
     defer framebuffer.deinit();
 
     framebuffer.clearColor(core.color.rgb(0, 0, 0));
+    framebuffer.clearDepth();
 
     var mesh = Mesh.init(alloc);
     defer mesh.deinit();
 
     try obj_loader.loadMeshFromFile(&mesh, &io, "resources/model.obj");
 
-    renderer.drawMesh(&mesh, &framebuffer);
+    renderer.drawMesh(&mesh, &cam, &framebuffer);
 
     const depth_visualization = try alloc.alloc(u32, width * height);
     defer alloc.free(depth_visualization);

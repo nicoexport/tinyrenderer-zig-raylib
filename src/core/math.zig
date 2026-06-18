@@ -5,6 +5,7 @@ pub const Vec3 = rl.Vector3;
 pub const Vec4 = rl.Vector4;
 
 pub const Mat4 = rl.Matrix;
+
 pub fn mat4(
     r0: [4]f32,
     r1: [4]f32,
@@ -28,6 +29,15 @@ pub fn mat4(
         .m7 = r3[1],
         .m11 = r3[2],
         .m15 = r3[3],
+    };
+}
+
+pub fn mulMat4Vec4(m: rl.Matrix, v: rl.Vector4) rl.Vector4 {
+    return .{
+        .x = m.m0 * v.x + m.m4 * v.y + m.m8 * v.z + m.m12 * v.w,
+        .y = m.m1 * v.x + m.m5 * v.y + m.m9 * v.z + m.m13 * v.w,
+        .z = m.m2 * v.x + m.m6 * v.y + m.m10 * v.z + m.m14 * v.w,
+        .w = m.m3 * v.x + m.m7 * v.y + m.m11 * v.z + m.m15 * v.w,
     };
 }
 

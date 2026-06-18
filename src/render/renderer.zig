@@ -5,6 +5,7 @@ const render = @import("mod.zig");
 const math = core.math;
 
 const Vec3 = math.Vec3;
+const Vec4 = math.Vec4;
 const Mat4 = math.Mat4;
 const Mesh = core.mesh.Mesh;
 
@@ -17,28 +18,25 @@ pub const Camera = struct {
     up: Vec3,
 
     pub fn init(eye: Vec3, center: Vec3, up: Vec3) Camera {
-        return .{ eye, center, up };
+        return .{ .eye = eye, .center = center, .up = up };
     }
 };
 
 pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
-    const rotationMatrix = Mat4.rotateY(math.degToRad(30.0));
     var prng: std.Random.DefaultPrng = .init(0);
     const rand = prng.random();
 
-    const w: u32 = @intCast(framebuffer.width);
-    const h: u32 = @intCast(framebuffer.height);
+    // const wf: f32 = @floatFromInt(framebuffer.width);
+    // const hf: f32 = @floatFromInt(framebuffer.height);
 
-    const wf: f32 = @floatFromInt(framebuffer.width);
-    const hf: f32 = @floatFromInt(framebuffer.height);
+    const w: i32 = @intCast(framebuffer.width);
+    const h: i32 = @intCast(framebuffer.height);
 
     const m_model_view = lookAt(cam.eye, cam.center, cam.up);
-    const m_perspective = perspective(cam.eye.subtract(cam.center).normalize());
-    const m_viewport = viewport(wf / 16.0, hf / 16.0, wf * 7.0 / 8.0, hf * 7.0 / 8.0);
+    const m_perspective = perspective(cam.eye.subtract(cam.center).length());
+    const m_viewport = viewport(@divTrunc(w, 16), @divTrunc(h, 16), @divTrunc(w * 7, 8), @divTrunc(h * 7, 8));
 
-    _ = m_model_view;
-    _ = m_perspective;
-    _ = m_viewport;
+    const pmv = m_perspective.multiply(m_model_view);
 
     for (mesh.faces.items, 0..) |f, fi| {
         _ = f;
@@ -51,11 +49,23 @@ pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
         const v1 = mesh.getVertexFromFaceIndex(fi, 1);
         const v2 = mesh.getVertexFromFaceIndex(fi, 2);
 
-        const v_screen_0 = ndcToScreen(persp(math.Vec3Transform(rotationMatrix, v0)), w, h);
-        const v_screen_1 = ndcToScreen(persp(math.Vec3Transform(rotationMatrix, v1)), w, h);
-        const v_screen_2 = ndcToScreen(persp(math.Vec3Transform(rotationMatrix, v2)), w, h);
+        const v0_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v0.x, v0.y, v0.z, 1.0));
+        const v1_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v1.x, v1.y, v1.z, 1.0));
+        const v2_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v2.x, v2.y, v2.z, 1.0));
 
-        rasterizer.drawTriangle(framebuffer, v_screen_0, v_screen_1, v_screen_2, col);
+        const v0_ndc: Vec4 = v0_clip.scale(1.0 / v0_clip.w);
+        const v1_ndc: Vec4 = v1_clip.scale(1.0 / v1_clip.w);
+        const v2_ndc: Vec4 = v2_clip.scale(1.0 / v2_clip.w);
+
+        const v0_viewport = math.mulMat4Vec4(m_viewport, v0_ndc);
+        const v1_viewport = math.mulMat4Vec4(m_viewport, v1_ndc);
+        const v2_viewport = math.mulMat4Vec4(m_viewport, v2_ndc);
+
+        const v0_screen_vertex: ScreenVertex = .{ .position = .{ .x = v0_viewport.x, .y = v0_viewport.y }, .z = v0_ndc.z };
+        const v1_screen_vertex: ScreenVertex = .{ .position = .{ .x = v1_viewport.x, .y = v1_viewport.y }, .z = v1_ndc.z };
+        const v2_screen_vertex: ScreenVertex = .{ .position = .{ .x = v2_viewport.x, .y = v2_viewport.y }, .z = v2_ndc.z };
+
+        rasterizer.drawTriangle(framebuffer, v0_screen_vertex, v1_screen_vertex, v2_screen_vertex, col);
     }
 }
 
@@ -86,7 +96,7 @@ fn viewport(x: i32, y: i32, w: i32, h: i32) Mat4 {
 
     return math.mat4(
         .{ wf / 2.0, 0, 0, xf + wf / 2.0 },
-        .{ 0, hf / 2.0, 0, yf + hf / 2.0 },
+        .{ 0, -hf / 2.0, 0, yf + hf / 2.0 },
         .{ 0, 0, 1, 0 },
         .{ 0, 0, 0, 1 },
     );
