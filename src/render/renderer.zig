@@ -20,6 +20,22 @@ pub const Camera = struct {
     pub fn init(eye: Vec3, center: Vec3, up: Vec3) Camera {
         return .{ .eye = eye, .center = center, .up = up };
     }
+
+    pub fn forward(self: *Camera) Vec3 {
+        return self.eye.subtract(self.center).normalize();
+    }
+
+    pub fn right(self: *Camera) Vec3 {
+        return self.up.crossProduct(self.forward()).normalize();
+    }
+
+    pub fn upwards(self: *Camera) Vec3 {
+        return self.up;
+    }
+
+    pub fn move(self: *Camera, dir: Vec3, amount: f32) void {
+        self.eye = self.eye.add(dir.scale(amount));
+    }
 };
 
 pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
@@ -33,10 +49,8 @@ pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
     const h: i32 = @intCast(framebuffer.height);
 
     const m_model_view = lookAt(cam.eye, cam.center, cam.up);
-    const m_perspective = perspective(cam.eye.subtract(cam.center).length());
+    const m_perspective = perspective(2);
     const m_viewport = viewport(@divTrunc(w, 16), @divTrunc(h, 16), @divTrunc(w * 7, 8), @divTrunc(h * 7, 8));
-
-    const pmv = m_perspective.multiply(m_model_view);
 
     for (mesh.faces.items, 0..) |f, fi| {
         _ = f;
@@ -49,9 +63,9 @@ pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
         const v1 = mesh.getVertexFromFaceIndex(fi, 1);
         const v2 = mesh.getVertexFromFaceIndex(fi, 2);
 
-        const v0_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v0.x, v0.y, v0.z, 1.0));
-        const v1_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v1.x, v1.y, v1.z, 1.0));
-        const v2_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v2.x, v2.y, v2.z, 1.0));
+        const v0_clip: Vec4 = math.mulMat4Vec4(m_perspective, math.mulMat4Vec4(m_model_view, Vec4.init(v0.x, v0.y, v0.z, 1.0)));
+        const v1_clip: Vec4 = math.mulMat4Vec4(m_perspective, math.mulMat4Vec4(m_model_view, Vec4.init(v1.x, v1.y, v1.z, 1.0)));
+        const v2_clip: Vec4 = math.mulMat4Vec4(m_perspective, math.mulMat4Vec4(m_model_view, Vec4.init(v2.x, v2.y, v2.z, 1.0)));
 
         const v0_ndc: Vec4 = v0_clip.scale(1.0 / v0_clip.w);
         const v1_ndc: Vec4 = v1_clip.scale(1.0 / v1_clip.w);
@@ -104,6 +118,7 @@ fn viewport(x: i32, y: i32, w: i32, h: i32) Mat4 {
 
 fn perspective(f: f32) Mat4 {
     std.debug.assert(f != 0.0);
+
     return math.mat4(
         .{ 1, 0, 0, 0 },
         .{ 0, 1, 0, 0 },
