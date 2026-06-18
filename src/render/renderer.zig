@@ -52,6 +52,8 @@ pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
     const m_perspective = perspective(cam.eye.subtract(cam.center).length());
     const m_viewport = viewport(@divTrunc(w, 16), @divTrunc(h, 16), @divTrunc(w * 7, 8), @divTrunc(h * 7, 8));
 
+    const pmv = m_perspective.multiply(m_model_view);
+
     for (mesh.faces.items, 0..) |f, fi| {
         _ = f;
         const r = rand.intRangeAtMost(u8, 0, 255);
@@ -63,9 +65,9 @@ pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
         const v1 = mesh.getVertexFromFaceIndex(fi, 1);
         const v2 = mesh.getVertexFromFaceIndex(fi, 2);
 
-        const v0_clip: Vec4 = math.mulMat4Vec4(m_perspective, math.mulMat4Vec4(m_model_view, Vec4.init(v0.x, v0.y, v0.z, 1.0)));
-        const v1_clip: Vec4 = math.mulMat4Vec4(m_perspective, math.mulMat4Vec4(m_model_view, Vec4.init(v1.x, v1.y, v1.z, 1.0)));
-        const v2_clip: Vec4 = math.mulMat4Vec4(m_perspective, math.mulMat4Vec4(m_model_view, Vec4.init(v2.x, v2.y, v2.z, 1.0)));
+        const v0_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v0.x, v0.y, v0.z, 1.0));
+        const v1_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v1.x, v1.y, v1.z, 1.0));
+        const v2_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v2.x, v2.y, v2.z, 1.0));
 
         const v0_ndc: Vec4 = v0_clip.scale(1.0 / v0_clip.w);
         const v1_ndc: Vec4 = v1_clip.scale(1.0 / v1_clip.w);
