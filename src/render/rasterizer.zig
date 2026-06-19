@@ -78,10 +78,10 @@ pub fn drawTriangle(framebuffer: *Framebuffer, v0: ScreenVertex, v1: ScreenVerte
 
     const total_area = signedTriangleArea(v0.position, v1.position, v2.position);
 
-    var x: i32 = bb.min_x;
-    while (x <= bb.max_x) : (x += 1) {
-        var y: i32 = bb.min_y;
-        while (y <= bb.max_y) : (y += 1) {
+    var x: i32 = @max(bb.min_x, 0);
+    while (x <= @min(bb.max_x, framebuffer.width - 1)) : (x += 1) {
+        var y: i32 = @max(bb.min_y, 0);
+        while (y <= @min(bb.max_y, framebuffer.height - 1)) : (y += 1) {
             const p = Vec2{
                 .x = @floatFromInt(x),
                 .y = @floatFromInt(y),

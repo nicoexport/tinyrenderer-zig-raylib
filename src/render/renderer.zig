@@ -69,8 +69,14 @@ pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
         const v1_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v1.x, v1.y, v1.z, 1.0));
         const v2_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v2.x, v2.y, v2.z, 1.0));
 
-        if (v0_clip.w == 0 or v1_clip.w == 0 or v2_clip.w == 0) {
-            std.debug.print("Vertex W in clip space was 0\n", .{});
+        // TODO need to clip against the W = 0 plane here to avoid corrup geometry. using fixed camera distance for now.
+        const epsilon = 0.1;
+
+        if (v0_clip.w < epsilon or
+            v1_clip.w < epsilon or
+            v2_clip.w < epsilon)
+        {
+            continue;
         }
 
         const v0_ndc: Vec4 = v0_clip.scale(1.0 / v0_clip.w);
