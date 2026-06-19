@@ -22,11 +22,11 @@ pub const Camera = struct {
     }
 
     pub fn forward(self: *Camera) Vec3 {
-        return self.eye.subtract(self.center).normalize();
+        return self.center.subtract(self.eye).normalize();
     }
 
     pub fn right(self: *Camera) Vec3 {
-        return self.up.crossProduct(self.forward()).normalize();
+        return self.forward().crossProduct(self.up).normalize();
     }
 
     pub fn upwards(self: *Camera) Vec3 {
@@ -49,7 +49,7 @@ pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
     const h: i32 = @intCast(framebuffer.height);
 
     const m_model_view = lookAt(cam.eye, cam.center, cam.up);
-    const m_perspective = perspective(cam.eye.subtract(cam.center).length());
+    const m_perspective = perspective(cam.eye.subtract(cam.center).length(), cam);
     const m_viewport = viewport(@divTrunc(w, 16), @divTrunc(h, 16), @divTrunc(w * 7, 8), @divTrunc(h * 7, 8));
 
     const pmv = m_perspective.multiply(m_model_view);
@@ -68,6 +68,10 @@ pub fn drawMesh(mesh: *Mesh, cam: *Camera, framebuffer: *Framebuffer) void {
         const v0_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v0.x, v0.y, v0.z, 1.0));
         const v1_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v1.x, v1.y, v1.z, 1.0));
         const v2_clip: Vec4 = math.mulMat4Vec4(pmv, Vec4.init(v2.x, v2.y, v2.z, 1.0));
+
+        if (v0_clip.w == 0 or v1_clip.w == 0 or v2_clip.w == 0) {
+            std.debug.print("Vertex W in clip space was 0\n", .{});
+        }
 
         const v0_ndc: Vec4 = v0_clip.scale(1.0 / v0_clip.w);
         const v1_ndc: Vec4 = v1_clip.scale(1.0 / v1_clip.w);
@@ -118,14 +122,16 @@ fn viewport(x: i32, y: i32, w: i32, h: i32) Mat4 {
     );
 }
 
-fn perspective(f: f32) Mat4 {
+fn perspective(f: f32, cam: *Camera) Mat4 {
     std.debug.assert(f != 0.0);
+
+    const scale = cam.eye.subtract(cam.center).length();
 
     return math.mat4(
         .{ 1, 0, 0, 0 },
         .{ 0, 1, 0, 0 },
         .{ 0, 0, 1, 0 },
-        .{ 0, 0, -1.0 / f, 1 },
+        .{ 0, 0, -1.0 / f, scale },
     );
 }
 
@@ -156,7 +162,8 @@ test "viewport" {
 }
 
 test "perspective" {
-    _ = perspective(3.0);
+    var cam = Camera.init(Vec3.one(), Vec3.one(), Vec3.one());
+    _ = perspective(3.0, &cam);
 }
 
 test "lookAt" {

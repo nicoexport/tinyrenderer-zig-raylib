@@ -64,7 +64,7 @@ pub fn main(init: std.process.Init) anyerror!void {
             draw_depth = !draw_depth;
         }
 
-        cam.move(handleCameraInput(&cam), 1.0);
+        cam.move(handleCameraInput(&cam), 0.1);
         // draw
         rl.beginDrawing();
         defer rl.endDrawing();
