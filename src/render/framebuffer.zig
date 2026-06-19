@@ -77,11 +77,13 @@ pub const Framebuffer = struct {
         return self.depth_buffer;
     }
 
+    // so z is in range [-1, 1]. needs to be mapped to [0, 1] and scaled by 255
     pub fn getDepthDataGreyscale(self: *Framebuffer, out: []u32) void {
         std.debug.assert(self.depth_buffer.len == out.len);
 
         for (self.depth_buffer, out) |z, *pixel| {
-            const v: u8 = @intFromFloat(std.math.clamp(z, 0.0, 1.0) * 255.0);
+            const z_remapped = (z + 1) / 2;
+            const v: u8 = @intFromFloat(std.math.clamp(z_remapped, 0.0, 1.0) * 255.0);
             const col = core.color.rgb(v, v, v);
 
             pixel.* = core.color.pack(col);
